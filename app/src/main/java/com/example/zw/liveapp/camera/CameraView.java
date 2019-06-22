@@ -11,6 +11,7 @@ public class CameraView extends MyEGLSurfaceView {
     private CameraRender mCameraRender;
     private MyCamera mCamera;
     private int cameraType=Camera.CameraInfo.CAMERA_FACING_BACK;
+
     public CameraView(Context context) {
         this(context,null);
     }

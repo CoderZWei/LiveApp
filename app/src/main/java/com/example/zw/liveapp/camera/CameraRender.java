@@ -42,6 +42,9 @@ public class CameraRender implements MyEGLSurfaceView.MyGLRender ,SurfaceTexture
     private int cameraTextureid;
 
     private SurfaceTexture mSurfaceTexture;
+    private OnSurfaceCreateListener onSurfaceCreateListener;
+
+    private CameraFboRender mCameraFboRender;
 
 
     public interface OnSurfaceCreateListener{
@@ -52,9 +55,6 @@ public class CameraRender implements MyEGLSurfaceView.MyGLRender ,SurfaceTexture
         this.onSurfaceCreateListener = onSurfaceCreateListener;
     }
 
-    private OnSurfaceCreateListener onSurfaceCreateListener;
-
-    private CameraFboRender mCameraFboRender;
 
     public CameraRender(Context context) {
         this.mContext = context;
@@ -81,6 +81,17 @@ public class CameraRender implements MyEGLSurfaceView.MyGLRender ,SurfaceTexture
         vPosition = GLES20.glGetAttribLocation(program, "v_Position");
         fPosition = GLES20.glGetAttribLocation(program, "f_Position");
 
+        //vbo
+        int [] vbos = new int[1];
+        GLES20.glGenBuffers(1, vbos, 0);
+        vboId = vbos[0];
+
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.length * 4 + fragmentData.length * 4, null, GLES20. GL_STATIC_DRAW);
+        GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, vertexData.length * 4, vertexBuffer);
+        GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, vertexData.length * 4, fragmentData.length * 4, fragmentBuffer);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
         //fbo
         int[] fbos = new int[1];
         GLES20.glGenBuffers(1, fbos, 0);
@@ -98,7 +109,7 @@ public class CameraRender implements MyEGLSurfaceView.MyGLRender ,SurfaceTexture
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 720, 1280, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 1080, 2160, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureid, 0);
         if(GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) != GLES20.GL_FRAMEBUFFER_COMPLETE)
         {
