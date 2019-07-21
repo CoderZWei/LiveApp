@@ -1,5 +1,6 @@
 package com.example.zw.liveapp;
 
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -20,5 +21,11 @@ public class CameraPreviewActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mCameraView.onDestory();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mCameraView.previewAngle(this);
     }
 }

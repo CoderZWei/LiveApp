@@ -50,7 +50,7 @@ public class CameraFboRender {
         fragmentBuffer.position(0);
     }
     public void onCreate(){
-        String vertexSource=ShaderUtil.getRawResource(mContex,R.raw.vertex_shader);
+        String vertexSource=ShaderUtil.getRawResource(mContex,R.raw.vertex_shader_screen);
         String fragmentSource=ShaderUtil.getRawResource(mContex,R.raw.fragment_shader_screen);
         program=ShaderUtil.createProgram(vertexSource,fragmentSource);
         vPosition = GLES20.glGetAttribLocation(program, "v_Position");
@@ -79,8 +79,9 @@ public class CameraFboRender {
 
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
-
+        //启用顶点着色器的vPosition成员句柄
         GLES20.glEnableVertexAttribArray(vPosition);
+        //准备数据
         GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8,
                 0);
 
