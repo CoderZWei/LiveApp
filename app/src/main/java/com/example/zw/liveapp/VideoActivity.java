@@ -9,8 +9,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.zw.liveapp.camera.CameraView;
-import com.example.zw.liveapp.encodec.BaseMediaEncoder;
-import com.example.zw.liveapp.encodec.MyMediaEncoder;
+import com.example.zw.liveapp.encoder.BaseMediaEncoder;
+import com.example.zw.liveapp.encoder.MyMediaEncoder;
 
 public class VideoActivity extends AppCompatActivity implements View.OnClickListener {
     private CameraView mCameraView;

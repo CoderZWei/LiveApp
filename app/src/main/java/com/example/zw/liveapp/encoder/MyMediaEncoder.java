@@ -1,4 +1,4 @@
-package com.example.zw.liveapp.encodec;
+package com.example.zw.liveapp.encoder;
 
 import android.content.Context;
 
