@@ -54,7 +54,7 @@ public class CameraRender implements MyEGLSurfaceView.MyGLRender ,SurfaceTexture
     private int width,height;
 
     public interface OnSurfaceCreateListener{
-        void OnSurfaceCreate(SurfaceTexture surfaceTexture);
+        void OnSurfaceCreate(SurfaceTexture surfaceTexture,int textureId);
     }
 
     public void setOnSurfaceCreateListener(OnSurfaceCreateListener onSurfaceCreateListener) {
@@ -143,7 +143,7 @@ public class CameraRender implements MyEGLSurfaceView.MyGLRender ,SurfaceTexture
         mSurfaceTexture.setOnFrameAvailableListener(this);
         if(onSurfaceCreateListener != null)
         {
-            onSurfaceCreateListener.OnSurfaceCreate(mSurfaceTexture);
+            onSurfaceCreateListener.OnSurfaceCreate(mSurfaceTexture,fboTextureid);
         }
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
     }

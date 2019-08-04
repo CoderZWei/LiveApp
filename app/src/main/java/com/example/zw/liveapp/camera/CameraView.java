@@ -14,6 +14,7 @@ public class CameraView extends MyEGLSurfaceView {
     private CameraRender mCameraRender;
     private MyCamera mCamera;
     private int cameraType=Camera.CameraInfo.CAMERA_FACING_BACK;
+    private int textureId=-1;
 
     public CameraView(Context context) {
         this(context,null);
@@ -31,8 +32,9 @@ public class CameraView extends MyEGLSurfaceView {
         previewAngle(context);
         mCameraRender.setOnSurfaceCreateListener(new CameraRender.OnSurfaceCreateListener() {
             @Override
-            public void OnSurfaceCreate(SurfaceTexture surfaceTexture) {
+            public void OnSurfaceCreate(SurfaceTexture surfaceTexture,int tid) {
                 mCamera.initCamera(surfaceTexture,cameraType);
+                textureId=tid;
             }
         });
     }
@@ -78,5 +80,8 @@ public class CameraView extends MyEGLSurfaceView {
                 }
                 break;
         }
+    }
+    public int getTextureId(){
+        return textureId;
     }
 }

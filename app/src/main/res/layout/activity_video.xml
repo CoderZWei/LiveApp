@@ -4,17 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
+    tools:context=".VideoActivity">
+    <com.example.zw.liveapp.camera.CameraView
+        android:id="@+id/cameraViewRecord"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnStartRecord"/>
     <Button
-        android:id="@+id/btn_camera_preview"
+        android:id="@+id/btnStartRecord"
+        android:text="开始录制"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="摄像头预览"/>
-    <Button
-        android:id="@+id/btn_video"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/btn_camera_preview"
-        android:text="视频录制"/>
+        app:layout_constraintTop_toBottomOf="@id/cameraViewRecord"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </android.support.constraint.ConstraintLayout>

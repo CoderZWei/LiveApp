@@ -12,10 +12,10 @@ import java.util.List;
 public class PermissionUtils {
     private static final int REQUEST_PERMISSION_CODE=0x293;
     static String perms[]={
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
             //Manifest.permission.CAMERA,
 //            Manifest.permission.INTERNET,
-//            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
 //            Manifest.permission.READ_EXTERNAL_STORAGE
             //Manifest.permission.MEDIA_CONTENT_CONTROL,
             //Manifest.permission.MODIFY_AUDIO_SETTINGS,
