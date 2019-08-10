@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".img2VideoActivity">
+    <com.example.zw.liveapp.img2video.ImgVideoView
+        android:id="@+id/imgVideoView"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnStartMixture"/>
+    <Button
+        android:id="@+id/btnStartMixture"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="开始合成"
+        app:layout_constraintTop_toBottomOf="@+id/imgVideoView"/>
+</android.support.constraint.ConstraintLayout>

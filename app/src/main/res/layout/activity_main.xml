@@ -17,4 +17,10 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/btn_camera_preview"
         android:text="视频录制"/>
+    <Button
+        android:id="@+id/btn_imgMixture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_video"
+        android:text="图片合成"/>
 </android.support.constraint.ConstraintLayout>

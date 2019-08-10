@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static {
         System.loadLibrary("native-lib");
     }
-    private Button btn_camera_preview,btn_video;
+    private Button btn_camera_preview,btn_video,btn_imgMixture;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_camera_preview.setOnClickListener(this);
         btn_video=(Button)findViewById(R.id.btn_video);
         btn_video.setOnClickListener(this);
+        btn_imgMixture=(Button)findViewById(R.id.btn_imgMixture);
+        btn_imgMixture.setOnClickListener(this);
     }
 
 
@@ -42,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent2=new Intent(MainActivity.this,VideoActivity.class);
                 startActivity(intent2);
                 break;
+            case R.id.btn_imgMixture:
+                Intent intent3=new Intent(MainActivity.this,img2VideoActivity.class);
+                startActivity(intent3);
         }
     }
 }
