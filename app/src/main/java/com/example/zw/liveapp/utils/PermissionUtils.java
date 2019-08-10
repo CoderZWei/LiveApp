@@ -13,13 +13,14 @@ public class PermissionUtils {
     private static final int REQUEST_PERMISSION_CODE=0x293;
     static String perms[]={
             Manifest.permission.CAMERA,
-            //Manifest.permission.CAMERA,
-//            Manifest.permission.INTERNET,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-//            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
             //Manifest.permission.MEDIA_CONTENT_CONTROL,
             //Manifest.permission.MODIFY_AUDIO_SETTINGS,
             //Manifest.permission.RECORD_AUDIO
+
     };
     public static boolean hasPermission(Context context, String perm){
         if(Build.VERSION.SDK_INT>=23){

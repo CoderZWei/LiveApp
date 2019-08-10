@@ -24,6 +24,13 @@ public abstract class BaseMediaEncoder {
     private MediaCodec videoEncoder;
     private MediaFormat videoFormat;
     private MediaCodec.BufferInfo videoBufferInfo;
+
+    private MediaCodec audioEncoder;
+    private MediaFormat audioFormat;
+    private MediaCodec.BufferInfo audioBufferInfo;
+    private long audioPts=0;
+    private int sampleRate;
+
     private MediaMuxer mediaMuxer;
     private MyEGLSurfaceView.MyGLRender mGLRender;
     public final static int RENDERMODE_WHEN_DIRTY = 0;
@@ -32,6 +39,9 @@ public abstract class BaseMediaEncoder {
     private OnMediaInfoListener onMediaInfoListener;
     private EGLMediaThread eglMediaThread;
     private VideoEncodeThread videoEncodeThread;
+    private AudioEncodeThread audioEncodeThread;
+
+    private Boolean encodeStart,videoExit,audioExit;
 
     public BaseMediaEncoder(Context context) {
     }
@@ -44,17 +54,18 @@ public abstract class BaseMediaEncoder {
         this.mRenderMode=renderMode;
     }
 
-    public void initEncoder(EGLContext eglContext,String savePath,String mimeType,int width,int height){
+    public void initEncoder(EGLContext eglContext,String savePath,int width,int height,int sampleRate,int channelCount){
         this.width=width;
         this.height=height;
         this.eglContext=eglContext;
-        initMediaEncoder(savePath,mimeType,width,height);
+        initMediaEncoder(savePath,width,height,sampleRate,channelCount);
     }
 
-    private void initMediaEncoder(String savePath, String mimeType, int width, int height) {
+    private void initMediaEncoder(String savePath, int width, int height,int sampleRate,int channelCount) {
         try {
             mediaMuxer=new MediaMuxer(savePath,MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-            initVideoEncoder(mimeType,width,height);
+            initVideoEncoder(MediaFormat.MIMETYPE_VIDEO_AVC,width,height);
+            initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC,sampleRate,channelCount);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +91,43 @@ public abstract class BaseMediaEncoder {
             videoFormat=null;
             videoBufferInfo=null;
         }
+    }
 
+    private void initAudioEncoder(String mimeType, int sampleRate, int channelCount) {
+        this.sampleRate=sampleRate;
+        audioBufferInfo=new MediaCodec.BufferInfo();
+        audioFormat=MediaFormat.createAudioFormat(mimeType,sampleRate,channelCount);
+        audioFormat.setInteger(MediaFormat.KEY_BIT_RATE,96000);
+        audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE,MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+        audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE,4096);
+        try {
+            audioEncoder=MediaCodec.createEncoderByType(mimeType);
+            audioEncoder.configure(audioFormat,null,null,MediaCodec.CONFIGURE_FLAG_ENCODE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            audioBufferInfo=null;
+            audioFormat=null;
+            audioEncoder=null;
+        }
+
+    }
+
+    public void putPCMData(byte[] buffer,int size){
+        if(audioEncodeThread!=null && !audioEncodeThread.isExit && buffer!=null && size>0){
+            int inputBufferIndex=audioEncoder.dequeueInputBuffer(0);
+            if(inputBufferIndex>=0){
+                ByteBuffer byteBuffer=audioEncoder.getInputBuffers()[inputBufferIndex];
+                byteBuffer.clear();
+                byteBuffer.put(buffer);
+                long pts=getAudioPts(size,sampleRate);
+                audioEncoder.queueInputBuffer(inputBufferIndex,0,size,pts,0);
+            }
+        }
+    }
+
+    private long getAudioPts(int size,int sampleRate){
+        audioPts += (long)(1.0 * size / (sampleRate * 2 * 2) * 1000000.0);
+        return audioPts;
     }
 
     public interface OnMediaInfoListener{
@@ -93,7 +140,11 @@ public abstract class BaseMediaEncoder {
 
     public void startRecord(){
         if(surface!=null && eglContext!=null){
-            Log.d("zw_debug","startRecord");
+            audioPts=0;
+            audioExit=false;
+            videoExit=false;
+            encodeStart=false;
+
             eglMediaThread=new EGLMediaThread(new WeakReference<BaseMediaEncoder>(this));
             eglMediaThread.isCreate=true;
             eglMediaThread.isChange=true;
@@ -101,14 +152,8 @@ public abstract class BaseMediaEncoder {
 
             videoEncodeThread=new VideoEncodeThread(new WeakReference<BaseMediaEncoder>(this));
             videoEncodeThread.start();
-        }else {
-            if(surface==null){
-                Log.d("zw_debug","surface is null");
-            }
-            if(eglContext==null){
-                Log.d("zw_debug","eglContext is null");
-            }
-            Log.d("zw_debug","startRecord failed");
+            audioEncodeThread=new AudioEncodeThread(new WeakReference<BaseMediaEncoder>(this));
+            audioEncodeThread.start();
         }
     }
 
@@ -116,6 +161,8 @@ public abstract class BaseMediaEncoder {
         if(eglMediaThread!=null && videoEncodeThread!=null){
             videoEncodeThread.exit();
             videoEncodeThread=null;
+            audioEncodeThread.exit();
+            audioEncodeThread=null;
             eglMediaThread.onDestory();
             eglMediaThread=null;
         }
@@ -234,6 +281,7 @@ public abstract class BaseMediaEncoder {
             videoFormat=encoder.get().videoFormat;
             videoBufferInfo=encoder.get().videoBufferInfo;
             mediaMuxer=encoder.get().mediaMuxer;
+            videoTrackIndex=-1;
         }
         @Override
         public void run() {
@@ -248,18 +296,24 @@ public abstract class BaseMediaEncoder {
                     videoEncoder.stop();
                     videoEncoder.release();
                     videoEncoder=null;
-
-                    mediaMuxer.stop();
-                    mediaMuxer.release();
-                    mediaMuxer=null;
+                    encoder.get().videoExit=true;
+                    if(encoder.get().audioExit){
+                        mediaMuxer.stop();
+                        mediaMuxer.release();
+                        mediaMuxer=null;
+                    }
                     break;
-                }else {
-                    int outputBufferIndex=videoEncoder.dequeueOutputBuffer(videoBufferInfo,0);
-                    if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
-                        videoTrackIndex=mediaMuxer.addTrack(videoEncoder.getOutputFormat());
+                }
+                int outputBufferIndex=videoEncoder.dequeueOutputBuffer(videoBufferInfo,0);
+                if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
+                    videoTrackIndex=mediaMuxer.addTrack(videoEncoder.getOutputFormat());
+                    if(encoder.get().audioEncodeThread.audioTrackIndex!=-1){
                         mediaMuxer.start();
-                    }else {
-                        while (outputBufferIndex>=0){
+                        encoder.get().encodeStart=true;
+                    }
+                }else {
+                    while (outputBufferIndex>=0){
+                        if(encoder.get().encodeStart){
                             ByteBuffer outputBuffer=videoEncoder.getOutputBuffers()[outputBufferIndex];
                             outputBuffer.position(videoBufferInfo.offset);
                             outputBuffer.limit(videoBufferInfo.offset+videoBufferInfo.size);
@@ -271,15 +325,85 @@ public abstract class BaseMediaEncoder {
 
                             if(encoder.get().onMediaInfoListener!=null){
                                 encoder.get().onMediaInfoListener.onMediaTime((int)(videoBufferInfo.presentationTimeUs/1000000));
-                            }
-                            videoEncoder.releaseOutputBuffer(outputBufferIndex,false);
-                            outputBufferIndex=videoEncoder.dequeueOutputBuffer(videoBufferInfo,0);
+                                }
                         }
+                        videoEncoder.releaseOutputBuffer(outputBufferIndex,false);
+                        outputBufferIndex=videoEncoder.dequeueOutputBuffer(videoBufferInfo,0);
                     }
                 }
             }
         }
         private void exit(){
+            this.isExit=true;
+        }
+    }
+
+    static class AudioEncodeThread extends Thread{
+        private WeakReference<BaseMediaEncoder>encoder;
+        private boolean isExit;
+        private MediaCodec audioEncoder;
+        private MediaCodec.BufferInfo audioBufferInfo;
+        private MediaMuxer mediaMuxer;
+        private int audioTrackIndex;
+        private long pts;
+
+        public AudioEncodeThread(WeakReference<BaseMediaEncoder> encoder) {
+            this.encoder = encoder;
+            audioEncoder=encoder.get().audioEncoder;
+            audioBufferInfo=encoder.get().audioBufferInfo;
+            mediaMuxer=encoder.get().mediaMuxer;
+            audioTrackIndex=-1;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            pts=0;
+            isExit=false;
+            audioEncoder.start();
+            while (true){
+                if (isExit){
+                    audioEncoder.stop();
+                    audioEncoder.release();
+                    audioEncoder=null;
+                    encoder.get().audioExit=true;
+                    if(encoder.get().videoExit){
+                        mediaMuxer.stop();
+                        mediaMuxer.release();
+                        mediaMuxer=null;
+                    }
+                    break;
+                }
+
+                int outputBufferIndex=audioEncoder.dequeueOutputBuffer(audioBufferInfo,0);
+                if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
+                    if(mediaMuxer!=null){
+                        audioTrackIndex=mediaMuxer.addTrack(audioEncoder.getOutputFormat());
+                        if(encoder.get().videoEncodeThread.videoTrackIndex!=-1){
+                            mediaMuxer.start();
+                            encoder.get().encodeStart=true;
+                        }
+                    }
+                }else {
+                    while (outputBufferIndex>=0){
+                        if(encoder.get().encodeStart){
+                            ByteBuffer outputBuffer=audioEncoder.getOutputBuffers()[outputBufferIndex];
+                            outputBuffer.position(audioBufferInfo.offset);
+                            outputBuffer.limit(audioBufferInfo.offset+audioBufferInfo.size);
+                            if(pts==0){
+                                pts=audioBufferInfo.presentationTimeUs;
+                            }
+                            audioBufferInfo.presentationTimeUs=audioBufferInfo.presentationTimeUs-pts;
+                            mediaMuxer.writeSampleData(audioTrackIndex,outputBuffer,audioBufferInfo);
+                        }
+                        audioEncoder.releaseOutputBuffer(outputBufferIndex,false);
+                        outputBufferIndex=audioEncoder.dequeueOutputBuffer(audioBufferInfo,0);
+                    }
+                }
+            }
+        }
+
+        public void exit(){
             this.isExit=true;
         }
     }
