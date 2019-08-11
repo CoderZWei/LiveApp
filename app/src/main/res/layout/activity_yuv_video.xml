@@ -4,17 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Img2VideoActivity">
-    <com.example.zw.liveapp.img2video.ImgVideoView
-        android:id="@+id/imgVideoView"
+    tools:context=".YuvVideoActivity">
+    <com.example.zw.liveapp.yuvVideo.YuvView
+        android:id="@+id/yuvView"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btnStartMixture"/>
+        android:layout_height="500px"
+        app:layout_constraintTop_toTopOf="parent"/>
     <Button
-        android:id="@+id/btnStartMixture"
+        android:id="@+id/btn_play"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="开始合成"
-        app:layout_constraintTop_toBottomOf="@+id/imgVideoView"/>
+        android:layout_height="50dp"
+        android:text="开始播放"
+        app:layout_constraintTop_toBottomOf="@+id/yuvView"/>
 </android.support.constraint.ConstraintLayout>

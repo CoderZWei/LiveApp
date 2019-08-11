@@ -12,7 +12,7 @@ import com.ywl5320.libmusic.WlMusic;
 import com.ywl5320.listener.OnPreparedListener;
 import com.ywl5320.listener.OnShowPcmDataListener;
 
-public class img2VideoActivity extends AppCompatActivity {
+public class Img2VideoActivity extends AppCompatActivity {
     private ImgVideoView mImgVideoView;
     private Button mBtn;
     private MyMediaEncoder mMediaEncoder;
@@ -43,7 +43,7 @@ public class img2VideoActivity extends AppCompatActivity {
         mWlMusic.setOnShowPcmDataListener(new OnShowPcmDataListener() {
             @Override
             public void onPcmInfo(int samplerate, int bit, int channels) {
-                mMediaEncoder=new MyMediaEncoder(img2VideoActivity.this,mImgVideoView.getFboTextureId());
+                mMediaEncoder=new MyMediaEncoder(Img2VideoActivity.this,mImgVideoView.getFboTextureId());
                 mMediaEncoder.initEncoder(mImgVideoView.getEglContext(),
                         Environment.getExternalStorageDirectory().getAbsolutePath()+ "/img2video.mp4",
                         720,500,samplerate,channels);

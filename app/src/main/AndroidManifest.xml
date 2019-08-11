@@ -26,8 +26,9 @@
             android:name=".CameraPreviewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppThemeFullScreen" />
-        <activity android:name=".VideoActivity"></activity>
-        <activity android:name=".img2VideoActivity"></activity>
+        <activity android:name=".VideoActivity" />
+        <activity android:name=".Img2VideoActivity" />
+        <activity android:name=".YuvVideoActivity"></activity>
     </application>
 
 </manifest>

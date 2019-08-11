@@ -5,14 +5,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     static {
         System.loadLibrary("native-lib");
     }
-    private Button btn_camera_preview,btn_video,btn_imgMixture;
+    private Button btn_camera_preview,btn_video,btn_imgMixture,btn_yuvVideo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_video.setOnClickListener(this);
         btn_imgMixture=(Button)findViewById(R.id.btn_imgMixture);
         btn_imgMixture.setOnClickListener(this);
+        btn_yuvVideo=(Button)findViewById(R.id.btn_yuvVideo);
+        btn_yuvVideo.setOnClickListener(this);
     }
 
 
@@ -45,8 +46,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent2);
                 break;
             case R.id.btn_imgMixture:
-                Intent intent3=new Intent(MainActivity.this,img2VideoActivity.class);
+                Intent intent3=new Intent(MainActivity.this,Img2VideoActivity.class);
                 startActivity(intent3);
+                break;
+            case R.id.btn_yuvVideo:
+                Intent intent4=new Intent(MainActivity.this,YuvVideoActivity.class);
+                startActivity(intent4);
+                break;
+
         }
     }
 }
