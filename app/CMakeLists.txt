@@ -23,6 +23,9 @@ add_library( # Sets the name of the library.
         src/main/cpp/librtmp/parseurl.c
         src/main/cpp/librtmp/rtmp.c
 
+        src/main/cpp/QueueUtil.cpp
+        src/main/cpp/RtmpPush.cpp
+
         src/main/cpp/native-lib.cpp)
 
 find_library( # Sets the name of the path variable.

@@ -8,10 +8,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    static {
-        System.loadLibrary("native-lib");
-    }
-    private Button btn_camera_preview,btn_video,btn_imgMixture,btn_yuvVideo;
+    private Button btnCameraPreview,btnVideo,btnImgMixture,btnYuvVideo,btnLivePush;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,18 +18,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
-        btn_camera_preview=(Button)findViewById(R.id.btn_camera_preview);
-        btn_camera_preview.setOnClickListener(this);
-        btn_video=(Button)findViewById(R.id.btn_video);
-        btn_video.setOnClickListener(this);
-        btn_imgMixture=(Button)findViewById(R.id.btn_imgMixture);
-        btn_imgMixture.setOnClickListener(this);
-        btn_yuvVideo=(Button)findViewById(R.id.btn_yuvVideo);
-        btn_yuvVideo.setOnClickListener(this);
+        btnCameraPreview=(Button)findViewById(R.id.btn_camera_preview);
+        btnCameraPreview.setOnClickListener(this);
+        btnVideo=(Button)findViewById(R.id.btn_video);
+        btnVideo.setOnClickListener(this);
+        btnImgMixture=(Button)findViewById(R.id.btn_imgMixture);
+        btnImgMixture.setOnClickListener(this);
+        btnYuvVideo=(Button)findViewById(R.id.btn_yuvVideo);
+        btnYuvVideo.setOnClickListener(this);
+        btnLivePush=(Button)findViewById(R.id.btn_livePush);
+        btnLivePush.setOnClickListener(this);
     }
 
-
-    public native String stringFromJNI();
 
     @Override
     public void onClick(View v) {
@@ -53,7 +50,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent4=new Intent(MainActivity.this,YuvVideoActivity.class);
                 startActivity(intent4);
                 break;
-
+            case R.id.btn_livePush:
+                Intent intent5=new Intent(MainActivity.this,LivePushActivity.class);
+                startActivity(intent5);
+                break;
         }
     }
 }

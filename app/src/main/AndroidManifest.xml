@@ -28,7 +28,8 @@
             android:theme="@style/AppThemeFullScreen" />
         <activity android:name=".VideoActivity" />
         <activity android:name=".Img2VideoActivity" />
-        <activity android:name=".YuvVideoActivity"></activity>
+        <activity android:name=".YuvVideoActivity" />
+        <activity android:name=".LivePushActivity"></activity>
     </application>
 
 </manifest>
