@@ -9,6 +9,7 @@
 #include <string.h>
 #include "pthread.h"
 #include "QueueUtil.h"
+#include "CallbackUtil.h"
 
 
 extern "C"{
@@ -20,10 +21,10 @@ class RtmpPush{
         RTMP *rtmp=NULL;
         char *url=NULL;
         QueueUtil *rtmpQueue=NULL;
-
+        CallbackUtil *callback=NULL;
         pthread_t push_thread;
 
-        RtmpPush(const char* url);
+        RtmpPush(const char* url,CallbackUtil *callback);
         ~RtmpPush();
 
         void init();

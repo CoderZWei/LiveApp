@@ -25,6 +25,7 @@ add_library( # Sets the name of the library.
 
         src/main/cpp/QueueUtil.cpp
         src/main/cpp/RtmpPush.cpp
+        src/main/cpp/CallbackUtil.cpp
 
         src/main/cpp/native-lib.cpp)
 
