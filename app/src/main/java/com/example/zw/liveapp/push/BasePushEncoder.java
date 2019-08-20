@@ -16,6 +16,8 @@ import java.nio.ByteBuffer;
 
 import javax.microedition.khronos.egl.EGLContext;
 
+import static android.media.MediaCodec.BUFFER_FLAG_KEY_FRAME;
+
 public class BasePushEncoder {
     private Surface surface;
     private EGLContext eglContext;
@@ -38,8 +40,6 @@ public class BasePushEncoder {
     private EGLMediaThread eglMediaThread;
     private VideoEncodeThread videoEncodeThread;
     private AudioEncodeThread audioEncodeThread;
-
-    private Boolean encodeStart, videoExit, audioExit;
 
     public BasePushEncoder(Context context) {
     }
@@ -124,6 +124,8 @@ public class BasePushEncoder {
 
     public interface OnMediaInfoListener {
         void onMediaTime(int times);
+        void onSPSPPSInfo(byte[] sps,byte[]pps);
+        void onVideoInfo(byte[]data,boolean keyFame);
     }
 
     public void setOnMediaInfoListener(OnMediaInfoListener onMediaInfoListener) {
@@ -133,9 +135,6 @@ public class BasePushEncoder {
     public void startRecord() {
         if (surface != null && eglContext != null) {
             audioPts = 0;
-            audioExit = false;
-            videoExit = false;
-            encodeStart = false;
 
             eglMediaThread = new EGLMediaThread(new WeakReference<BasePushEncoder>(this));
             eglMediaThread.isCreate = true;
@@ -268,6 +267,7 @@ public class BasePushEncoder {
         private long pts;
         private byte[] sps;
         private byte[] pps;
+        private boolean keyFrame=false;
 
         public VideoEncodeThread(WeakReference<BasePushEncoder> encoder) {
             this.encoder = encoder;
@@ -290,6 +290,7 @@ public class BasePushEncoder {
                     break;
                 }
                 int outputBufferIndex = videoEncoder.dequeueOutputBuffer(videoBufferInfo, 0);
+                keyFrame=false;
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     Log.d("zw_debug", "INFO_OUTPUT_FORMAT_CHANGED");
                     ByteBuffer spsb = videoEncoder.getOutputFormat().getByteBuffer("csd-0");
@@ -316,7 +317,14 @@ public class BasePushEncoder {
                         outputBuffer.get(data, 0, data.length);
                         Log.d("ywl5320", "data:" + byteToHex(data));
 
+                        if(videoBufferInfo.flags==BUFFER_FLAG_KEY_FRAME){
+                            keyFrame=true;
+                            if(encoder.get().onMediaInfoListener!=null){
+                                encoder.get().onMediaInfoListener.onSPSPPSInfo(sps,pps);
+                            }
+                        }
                         if (encoder.get().onMediaInfoListener != null) {
+                            encoder.get().onMediaInfoListener.onVideoInfo(data,keyFrame);
                             encoder.get().onMediaInfoListener.onMediaTime((int) (videoBufferInfo.presentationTimeUs / 1000000));
                         }
                         videoEncoder.releaseOutputBuffer(outputBufferIndex, false);

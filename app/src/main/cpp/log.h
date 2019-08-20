@@ -9,6 +9,9 @@
 #include <android/log.h>
 
 static const char *TAG="zw_debug";
+
+#define LOG_SHOW true
+
 #ifndef ALOGD
 #define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG,TAG,__VA_ARGS__)
 #endif

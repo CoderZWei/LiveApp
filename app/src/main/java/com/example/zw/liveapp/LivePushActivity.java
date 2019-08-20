@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.zw.liveapp.camera.CameraView;
+import com.example.zw.liveapp.push.BasePushEncoder;
 import com.example.zw.liveapp.push.PushConnectionListener;
 import com.example.zw.liveapp.push.PushEncoder;
 import com.example.zw.liveapp.push.PushVideo;
@@ -52,6 +53,22 @@ public class LivePushActivity extends AppCompatActivity {
                 mPushEncoder=new PushEncoder(LivePushActivity.this,cameraViewPush.getTextureId());
                 mPushEncoder.initEncoder(cameraViewPush.getEglContext(),720, 1280, 44100, 2);
                 mPushEncoder.startRecord();
+                mPushEncoder.setOnMediaInfoListener(new BasePushEncoder.OnMediaInfoListener() {
+                    @Override
+                    public void onMediaTime(int times) {
+
+                    }
+
+                    @Override
+                    public void onSPSPPSInfo(byte[] sps, byte[] pps) {
+                        mPushVideo.pushSPSPPS(sps,pps);
+                    }
+
+                    @Override
+                    public void onVideoInfo(byte[] data, boolean keyFame) {
+                        mPushVideo.pushVideoData(data,keyFame);
+                    }
+                });
             }
 
             @Override

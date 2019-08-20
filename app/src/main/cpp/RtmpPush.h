@@ -12,21 +12,31 @@
 #include "CallbackUtil.h"
 
 
-extern "C"{
-    #include "librtmp/rtmp.h"
+extern "C" {
+#include "librtmp/rtmp.h"
 };
 
-class RtmpPush{
-    public:
-        RTMP *rtmp=NULL;
-        char *url=NULL;
-        QueueUtil *rtmpQueue=NULL;
-        CallbackUtil *callback=NULL;
-        pthread_t push_thread;
+class RtmpPush {
+public:
+    RTMP *rtmp = NULL;
+    char *url = NULL;
+    QueueUtil *rtmpQueue = NULL;
+    CallbackUtil *callback = NULL;
+    pthread_t push_thread;
+    bool startPushing= false;
+    long startTime=0;
 
-        RtmpPush(const char* url,CallbackUtil *callback);
-        ~RtmpPush();
+    RtmpPush(const char *url, CallbackUtil *callback);
 
-        void init();
+    ~RtmpPush();
+
+    void init();
+
+    void pushSPSPPS(char *sps, int sps_len, char *pps, int pps_len);
+
+    void pushVideoData(char *data, int data_len, bool keyframe);
+
+
 };
+
 #endif //LIVEAPP_RTMPPUSH_H
