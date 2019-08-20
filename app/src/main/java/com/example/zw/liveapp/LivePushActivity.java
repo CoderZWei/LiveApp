@@ -6,12 +6,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.zw.liveapp.camera.CameraView;
 import com.example.zw.liveapp.push.PushConnectionListener;
+import com.example.zw.liveapp.push.PushEncoder;
 import com.example.zw.liveapp.push.PushVideo;
 
 public class LivePushActivity extends AppCompatActivity {
     private Button btnStartPush;
+    private CameraView cameraViewPush;
+    private PushEncoder mPushEncoder;
     private PushVideo mPushVideo;
+    private Boolean isPushing=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,9 +25,20 @@ public class LivePushActivity extends AppCompatActivity {
         btnStartPush.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPushVideo.initLivePush("rtmp://10.135.104.71/");
+                isPushing=!isPushing;
+                if(isPushing){
+                    mPushVideo.initLivePush("rtmp://10.135.104.71/");
+                }else {
+                    if(mPushEncoder!=null){
+                        mPushEncoder.stopRecord();
+                        mPushEncoder=null;
+                    }
+                }
+
+
             }
         });
+        cameraViewPush=(CameraView)findViewById(R.id.cameraView_push);
         mPushVideo=new PushVideo();
         mPushVideo.setPushConnectionListener(new PushConnectionListener() {
             @Override
@@ -33,6 +49,9 @@ public class LivePushActivity extends AppCompatActivity {
             @Override
             public void onConnectSuccess() {
                 Log.d("zw_debug", "链接服务器成功");
+                mPushEncoder=new PushEncoder(LivePushActivity.this,cameraViewPush.getTextureId());
+                mPushEncoder.initEncoder(cameraViewPush.getEglContext(),720, 1280, 44100, 2);
+                mPushEncoder.startRecord();
             }
 
             @Override
